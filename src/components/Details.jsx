@@ -1,37 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
+import { fetchData } from './fetchData';
 
 export default function Details({ info, setLoading }) {
   const [userInfo, setUserInfo] = useState({});
   const timestampRef = useRef();
 
-  useEffect(() => {  
-    const fetchData = async () => {
-      console.log('loading');
-      const timestamp = Date.now();
+  useEffect(() => {     
+    setLoading(true);    
 
-      timestampRef.current = timestamp;
-      setLoading(true);
-      
-      try {
-        const response = await fetch(import.meta.env.VITE_DATA_URL + `/${info.id}.json`);
-
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-
-        const data = await response.json();
-        
-        if (timestampRef.current === timestamp) {
-          setUserInfo(data);
-        }          
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }      
-    };    
-
-    fetchData();
+    fetchData(info.id, setUserInfo, timestampRef)      
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
   }, [info.id]);
   
   return (

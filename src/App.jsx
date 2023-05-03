@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import List from './components/List';
 import Details from './components/Details';
 import Loading from './components/Loading';
+import { fetchData } from './components/fetchData';
 
 export default function App() {
   const [list, setList] = useState([]);
@@ -9,39 +10,16 @@ export default function App() {
   const [isLoading, setLoading] = useState(false);
   const timestampRef = useRef();
 
-  useEffect(() => {  
-    const fetchData = async () => {
-      const timestamp = Date.now();
-      
-      timestampRef.current = timestamp;
-      setLoading(true);
+  useEffect(() => {      
+    setLoading(true);    
 
-      try {
-        const response = await fetch(import.meta.env.VITE_DATA_URL + '/users.json');
-
-        if (!response.ok) {
-          throw new Error(response.statusText);
-        }
-
-        const list = await response.json();
-
-        if (timestampRef.current === timestamp) {
-          setList(list);         
-        }          
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-      
-    };    
-
-    fetchData();
+    fetchData('users', setList, timestampRef)      
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
   }, []);
 
   const getInfo = (id, name) => {    
     setInfo({id, name});
-    console.log(info);
   };
 
   return (
